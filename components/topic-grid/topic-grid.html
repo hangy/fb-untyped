@@ -1,0 +1,26 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="topic-grid">
+  <template>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col" title="Select">[X]</th>
+          <th scope="col">Name</th>
+          <th scope="col">Article</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template repeat="{{t in topics}}">
+          <tr>
+            <td><input type="checkbox" value="{{t.id}}"></td>
+            <td><a href="//www.freebase.com{{t.id}}">{{t.name}}</a></td>
+            <td>{{(t['/common/topic/article'] || t['/common/topic/description'])[0].value}}</td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </template>
+
+  <script src="topic-grid.js"></script>
+</polymer-element>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<title>Untyped</title>
+<script src="bower_components/platform/platform.js"></script>
+<link rel="import" href="imports/jquery.html">
+<link rel="import" href="imports/freebase.html">
+<link rel="import" href="imports/suggest.html">
+<link rel="import" href="imports/core.html">
+<link rel="import" href="components/topic-grid/topic-grid.html">
+</head>
+
+<body>
+<h1>Untyped</h1>
+
+<section>
+  <form id="search">
+    <label>
+      <span>Keyword(s)</span>
+      <input type="text" id="keyword" name="included_keywords" required tabindex="1">
+    </label>
+
+    <label>
+      <span>Exclude</span>
+      <input type="text" id="exclude" name="excluded_keywords" tabindex="2">
+    </label>
+
+    <label>
+      <span>Type</span>
+      <input type="text" id="type" name="type" required tabindex="3">
+    </label>
+
+    <div>
+      <button type="submit">GO</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <topic-grid></topic-grid>
+  <button type="submit" onclick="selectAll">Select All</button>
+  <button type="submit" id="add_types">Add Type(s)</button>
+  <button type="submit" onclick="deleteSelected">Delete (flag)</button>
+  <button type="submit" id="next_page">Next Page</button>
+</section>
+
+<script>
+var topics = []
+var cursor = null;
+var dateline = null;
+
+$(document).ready(function(){
+  var token = getAccessToken();
+  if (!token || !token.access_token) {
+    window.location.replace(new URL('authorize.html', window.location.href).href);
+  }
+
+  $('input[name="type"]').suggest({
+    key : API_KEY,
+    filter: '(all type:/type/type)',
+    scoring : 'schema',
+    mql_filter: [{'/freebase/type_hints/included_types':[{'id':'/common/topic'}]}]
+  });
+
+  initOAuth2();
+
+  $('#search').submit(function(event) {
+    while(topics.length > 0) {
+      topics.pop();
+    }
+
+    getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    event.preventDefault();
+  });
+
+  $('#next_page').click(function(event) {
+    while(topics.length > 0) {
+      topics.pop();
+    }
+
+    getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    event.preventDefault();
+  });
+
+  $('#add_types').click(function(event) {
+    var ids = [];
+    var checkboxes = $('body /deep/ input[type="checkbox"]:checked');
+    for (var i in checkboxes) {
+      if(checkboxes[i].value) {
+        ids.push(checkboxes[i].value);
+      }
+    }
+
+    write(ids, $('#type').data('data.suggest').mid).then(function(data) {
+      dateline = data.dateline;
+      getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    });
+    event.preventDefault();
+  });
+
+  function applyTopics(data) {
+    for (var index = 0; index < data.result.length; ++index) {
+      topics.push(data.result[index]);
+    }
+
+    cursor = data.cursor;
+  }
+
+})
+</script>
+</body>
+</html>
