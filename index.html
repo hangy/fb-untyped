@@ -65,6 +65,8 @@ $(document).ready(function(){
   initOAuth2();
 
   $('#search').submit(function(event) {
+    cursor = null;
+    dateline = null;
     while(topics.length > 0) {
       topics.pop();
     }
