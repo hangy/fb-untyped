@@ -38,7 +38,7 @@
 
 <section>
   <topic-grid></topic-grid>
-  <button type="submit" onclick="selectAll">Select All</button>
+  <label><input type="checkbox" id="check_all"><span>Select All</spab></label>
   <button type="submit" id="add_types">Add Type(s)</button>
   <button type="submit" onclick="deleteSelected">Delete (flag)</button>
   <button type="submit" id="next_page">Next Page</button>
@@ -103,6 +103,10 @@ $(document).ready(function(){
       getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
     });
     event.preventDefault();
+  });
+
+  $('#check_all').change(function(event) {
+    $('body /deep/ input[type="checkbox"]').prop('checked', $(this).prop('checked'));
   });
 
   function applyTopics(data) {
