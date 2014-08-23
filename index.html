@@ -136,9 +136,9 @@ $(document).ready(function(){
 
   function getCheckedIds() {
     var ids = [];
-    var checkboxes = $('body /deep/ input[type="checkbox"]:checked');
+    var checkboxes = $('body /deep/ input[type="checkbox"]:checked').not(document.getElementById('check_all'));
     for (var i in checkboxes) {
-      if(checkboxes[i].value) {
+      if (checkboxes[i].value) {
         ids.push(checkboxes[i].value);
       }
     }
