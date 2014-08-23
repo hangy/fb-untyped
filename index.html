@@ -40,7 +40,7 @@
   <topic-grid></topic-grid>
   <label><input type="checkbox" id="check_all"><span>Select All</spab></label>
   <button type="submit" id="add_types">Add Type(s)</button>
-  <button type="submit" onclick="deleteSelected">Delete (flag)</button>
+  <button type="submit" id="delete_topics">Delete (flag)</button>
   <button type="submit" id="next_page">Next Page</button>
 </section>
 
@@ -84,22 +84,8 @@ $(document).ready(function(){
   });
 
   $('#add_types').click(function(event) {
-    var ids = [];
-    var checkboxes = $('body /deep/ input[type="checkbox"]:checked');
-    for (var i in checkboxes) {
-      if(checkboxes[i].value) {
-        ids.push(checkboxes[i].value);
-      }
-    }
-
-    write(ids, $('#type').data('data.suggest').mid).then(function(datas) {
-      for (var i = datas.length - 1; i >= 0; --i) {
-        if (datas[i].dateline) {
-          dateline = datas[i].dateline;
-          break;
-        }
-      }
-
+    write(getCheckedIds(), $('#type').data('data.suggest').mid).then(function(datas) {
+      updateDateline(datas);
       getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
     });
     event.preventDefault();
@@ -108,6 +94,35 @@ $(document).ready(function(){
   $('#check_all').change(function(event) {
     $('body /deep/ input[type="checkbox"]').prop('checked', $(this).prop('checked'));
   });
+
+  $('#delete_topics').click(function(event) {
+    deleteTopics(getCheckedIds()).then(function(datas) {
+      updateDateline(datas);
+      getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    });
+    event.preventDefault();
+  });
+
+  function getCheckedIds() {
+    var ids = [];
+    var checkboxes = $('body /deep/ input[type="checkbox"]:checked');
+    for (var i in checkboxes) {
+      if(checkboxes[i].value) {
+        ids.push(checkboxes[i].value);
+      }
+    }
+
+    return ids;
+  }
+
+  function updateDateline(datas) {
+    for (var i = datas.length - 1; i >= 0; --i) {
+      if (datas[i].dateline) {
+        dateline = datas[i].dateline;
+        break;
+      }
+    }
+  }
 
   function applyTopics(data) {
     while(topics.length > 0) {
