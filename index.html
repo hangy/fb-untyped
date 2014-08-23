@@ -110,6 +110,10 @@ $(document).ready(function(){
   });
 
   function applyTopics(data) {
+    while(topics.length > 0) {
+      topics.pop();
+    }
+
     for (var index = 0; index < data.result.length; ++index) {
       topics.push(data.result[index]);
     }
