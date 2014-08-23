@@ -66,7 +66,6 @@ $(document).ready(function(){
 
   $('#search').submit(function(event) {
     cursor = null;
-    dateline = null;
     while(topics.length > 0) {
       topics.pop();
     }
@@ -93,8 +92,14 @@ $(document).ready(function(){
       }
     }
 
-    write(ids, $('#type').data('data.suggest').mid).then(function(data) {
-      dateline = data.dateline;
+    write(ids, $('#type').data('data.suggest').mid).then(function(datas) {
+      for (var i = datas.length - 1; i >= 0; --i) {
+        if (datas[i].dateline) {
+          dateline = datas[i].dateline;
+          break;
+        }
+      }
+
       getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
     });
     event.preventDefault();
