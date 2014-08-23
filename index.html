@@ -17,12 +17,12 @@
   <form id="search">
     <label>
       <span>Keyword(s)</span>
-      <input type="text" id="keyword" name="included_keywords" required tabindex="1">
+      <input type="text" id="keyword" name="included_keywords" required autofocus autocomplete="on" tabindex="1">
     </label>
 
     <label>
       <span>Exclude</span>
-      <input type="text" id="exclude" name="excluded_keywords" tabindex="2">
+      <input type="text" id="exclude" name="excluded_keywords" autocomplete="on" tabindex="2">
     </label>
 
     <label>
@@ -41,6 +41,7 @@
   <label><input type="checkbox" id="check_all"><span>Select All</spab></label>
   <button type="submit" id="add_types">Add Type(s)</button>
   <button type="submit" id="delete_topics">Delete (flag)</button>
+  <button type="submit" id="previous_page">Previous Page</button>
   <button type="submit" id="next_page">Next Page</button>
 </section>
 
@@ -52,6 +53,7 @@
 <script>
 var topics = []
 var cursor = null;
+var previousCursors = [];
 var dateline = null;
 
 $(document).ready(function(){
@@ -70,12 +72,27 @@ $(document).ready(function(){
   initOAuth2();
 
   $('#search').submit(function(event) {
+    previousCursors = [];
     cursor = null;
     while(topics.length > 0) {
       topics.pop();
     }
 
     getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    $('#check_all').prop('checked', false);
+    event.preventDefault();
+  });
+
+  $('#previous_page').click(function(event) {
+    cursor = previousCursors.pop();
+    cursor = previousCursors.pop();
+
+    while(topics.length > 0) {
+      topics.pop();
+    }
+
+    getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    $('#check_all').prop('checked', false);
     event.preventDefault();
   });
 
@@ -85,14 +102,19 @@ $(document).ready(function(){
     }
 
     getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
+    $('#check_all').prop('checked', false);
     event.preventDefault();
   });
 
   $('#add_types').click(function(event) {
+    cursor = previousCursors.pop();
+
     write(getCheckedIds(), $('#type').data('data.suggest').mid).then(function(datas) {
       updateDateline(datas);
       getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
     });
+
+    $('#check_all').prop('checked', false);
     event.preventDefault();
   });
 
@@ -101,10 +123,14 @@ $(document).ready(function(){
   });
 
   $('#delete_topics').click(function(event) {
+    cursor = previousCursors.pop();
+
     deleteTopics(getCheckedIds()).then(function(datas) {
       updateDateline(datas);
       getTopics($('#keyword').val(), $('#exclude').val(), cursor, dateline).then(applyTopics);
     });
+
+    $('#check_all').prop('checked', false);
     event.preventDefault();
   });
 
@@ -136,6 +162,10 @@ $(document).ready(function(){
 
     for (var index = 0; index < data.result.length; ++index) {
       topics.push(data.result[index]);
+    }
+
+    if (cursor) {
+      previousCursors.push(cursor);
     }
 
     cursor = data.cursor;
