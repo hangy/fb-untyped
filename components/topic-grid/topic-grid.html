@@ -1,3 +1,4 @@
+<link rel="import" href="../../imports/core.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <polymer-element name="topic-grid">
@@ -15,7 +16,7 @@
           <tr>
             <td><input type="checkbox" value="{{t.id}}"></td>
             <td><a href="//www.freebase.com{{t.id}}">{{t.name}}</a></td>
-            <td>{{(t['/common/topic/article'] || t['/common/topic/description'])[0].value}}</td>
+            <td>{{t.description}}</td>
           </tr>
         </template>
       </tbody>
