@@ -24,6 +24,10 @@ $(document).ready(function(){
       throw new Error("Verification of access_token failed.");
     }
 
+    var d = new Date();
+    d.setSeconds(d.getSeconds() + params.expires_in);
+    params.expires_at = d;
+
     localStorage.token = JSON.stringify(params);
   }).catch(function(error) {
     localStorage.token = null;
